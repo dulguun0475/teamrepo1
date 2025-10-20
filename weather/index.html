@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Цаг агаар</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('bg.jpg') no-repeat center center/cover;
+      color: white;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .weather-box {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 350px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #2b2bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    button:hover {
+      background: #1a1ad1;
+    }
+    p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-box">
+    <h2>Цаг агаарын мэдээлэл</h2>
+    <input type="text" id="cityInput" placeholder="Хотын нэр бич">
+    <button id="searchBtn">Хайх</button>
+    <div id="weather">Хот оруулна уу.</div>
+  </div>
+
+  <script>
+    const weatherTranslate = {
+      "clear sky": "Цэлмэг",
+      "few clouds": "Бага үүлтэй",
+      "scattered clouds": "Хэсэгчилсэн үүлтэй",
+      "broken clouds": "Үүлэрхэг",
+      "shower rain": "Бороотой",
+      "rain": "Бороо",
+      "snow": "Цас",
+      "light snow": "Цас будрах",
+      "mist": "Манантай",
+      "overcast clouds": "Бүрхэг"
+    };
+    const inputMap = {
+      "улаанбаатар": "Ulaanbaatar",
+      "эрдэнэт": "Erdenet",
+      "дархан": "Darkhan"
+    };
+    const cityDisplay = {
+      "Ulaanbaatar": "Улаанбаатар",
+      "Erdenet": "Эрдэнэт",
+      "Darkhan": "Дархан"
+    };
+    const apiKey = "1486e530785c980cc426c37d406c4417";
+    document.getElementById("searchBtn").addEventListener("click", function() {
+      let cityInput = document.getElementById("cityInput").value.trim().toLowerCase();
+      const city = inputMap[cityInput] || cityInput;
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error("Хот олдсонгүй");
+          return response.json();
+        })
+        .then(data => {
+          const displayCity = cityDisplay[data.name] || data.name;
+          const engDesc = data.weather[0].description.toLowerCase();
+          const mnDesc = weatherTranslate[engDesc] || engDesc;
+          document.getElementById("weather").innerHTML = `
+            <p><b>Хот:</b> ${displayCity}</p>
+            <p><b>Температур:</b> ${data.main.temp.toFixed(0)}°C</p>
+            <p><b>Мэдрэгдэх температур:</b> ${data.main.feels_like.toFixed(1)}°C</p>
+            <p><b>Тайлбар:</b> ${mnDesc}</p>
+          `;
+        })
+        .catch(err => {
+          document.getElementById("weather").innerHTML = "Алдаа гарлаа. Дахин оролдоорой!";
+          console.error(err);
+        });
+    });
+  </script>
+</body>
+</html>
